@@ -12,7 +12,8 @@
     "create": "npm run build && npm run test",
     "build": "tsc -p .",
     "test": "npm i -g && item-console",
-    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "package": "pkg . --targets node10-win-x64 --out-path \\builds"
   },
   "author": "TheSpaceCoder",
   "license": "ISC",
@@ -26,6 +27,15 @@
     "path": "^0.12.7",
     "readline-sync": "^1.4.10"
   },
+  "pkg": {
+    "assets": [
+    "./node_modules/chalk/**",
+    "./node_modules/clear/**",
+    "./node_modules/csv-parse/**",
+    "./node_modules/figlet/**",
+    "./node_modules/fs/**"
+    ]
+    },
   "devDependencies": {
     "@types/clear": "^0.1.0",
     "@types/figlet": "^1.2.0",
