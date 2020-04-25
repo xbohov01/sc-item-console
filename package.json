@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "csv based item lookup for SC",
   "main": "./lib/index.js",
+  "repository": "https://github.com/xbohov01/sc-item-console",
   "bin": {
     "item-console": "./lib/index.js"
   },
@@ -20,27 +21,23 @@
   "dependencies": {
     "chalk": "^4.0.0",
     "clear": "^0.1.0",
-    "commander": "^5.0.0",
     "csv-parse": "^4.8.9",
     "figlet": "^1.3.0",
-    "fs": "0.0.1-security",
-    "path": "^0.12.7",
-    "readline-sync": "^1.4.10"
+    "fs": "0.0.1-security"
   },
   "pkg": {
     "assets": [
-    "./node_modules/chalk/**",
-    "./node_modules/clear/**",
-    "./node_modules/csv-parse/**",
-    "./node_modules/figlet/**",
-    "./node_modules/fs/**"
+      "./node_modules/chalk/**",
+      "./node_modules/clear/**",
+      "./node_modules/csv-parse/**",
+      "./node_modules/figlet/**",
+      "./node_modules/fs/**"
     ]
-    },
+  },
   "devDependencies": {
     "@types/clear": "^0.1.0",
     "@types/figlet": "^1.2.0",
     "@types/node": "^13.13.2",
-    "@types/readline-sync": "^1.4.3",
     "nodemon": "^2.0.3",
     "ts-node": "^8.9.0",
     "typescript": "^3.8.3"
