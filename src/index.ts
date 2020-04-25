@@ -7,11 +7,12 @@ import fs from 'fs';
 import csv from 'csv-parse';
 import readline from 'readline';
 import FpsWeapon from './models/FpsWeapon';
-import { ParseFpsWeapons } from './parsers';
-import { emit } from 'cluster';
+import { ParseFpsWeapons, ParseFpsAttachments } from './parsers';
 import { ItemBase } from './models/ItemBase';
+import FpsAttachment from './models/FpsAttachment';
 
-const fpsPath = "./sheets/fps-weapons.csv"
+const fpsPath = './sheets/fps-weapons.csv';
+const fpsAttachmentsPath = './sheets/fps-attachments.csv';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -19,8 +20,8 @@ const rl = readline.createInterface({
   prompt: 'ICLI>'
 })
 
-let data:any[] = [];
 let fpsWeapons:FpsWeapon[] = [];
+let fpsAttachments:FpsAttachment[] = [];
 
 clear();
 console.log(
@@ -33,6 +34,7 @@ console.log(
 
 //console.log('Loading fps weapons sheet');
 try {
+  let data:any[] = [];
   if (fs.existsSync(fpsPath)){
     //console.log('FPS Weapons sheet loaded');
     fs.createReadStream(fpsPath)
@@ -48,7 +50,26 @@ try {
   }
 }
 catch(err){
-  console.log(chalk.redBright('FPS Weapons sheet missing in /sheets folder'));
+  console.error('FPS Weapons sheet missing in /sheets folder');
+}
+
+try {
+  let data:any[] = [];
+  if (fs.existsSync(fpsAttachmentsPath)){
+    //console.log('FPS Weapons sheet loaded');
+    fs.createReadStream(fpsAttachmentsPath)
+    .pipe(csv({
+      from_line: 3, columns: true
+    }))
+    .on('data', (row:any) => data.push(row))
+    .on('end', () => {
+      //FPS Weapons parse
+      fpsAttachments = ParseFpsAttachments(data);
+      //console.log(chalk.greenBright('FPS Weapons sheet parsed'));
+    });
+  }
+} catch(err){
+  console.error('FPS Attachments sheet missing in /sheets folder');
 }
 
 //User interface
@@ -77,9 +98,14 @@ function GetInput(){
 function SearchAndOutput(searchPhrase:string){
   //Search and output FPS Weapons
   let found:ItemBase[] = fpsWeapons.filter(w => w.Name.toLowerCase().includes(searchPhrase.toLowerCase()));
-  Output(found, 'FPS Weapons', 'fps');
+  if (found.length > 0){
+    Output(found, 'FPS Weapons', 'fps');
+  }
   //Search and output Attachments
-
+  found = fpsAttachments.filter(w => w.Name.toLowerCase().includes(searchPhrase.toLowerCase()));
+  if (found.length > 0){
+    Output(found, 'Attachments', 'atts');
+  }
   //Search and output Armors
 
   console.log(chalk.greenBright('-----------------------------------------'))
@@ -97,6 +123,10 @@ function Output(items:ItemBase[], title:string, type:string = ''){
     switch (type) {
       case 'fps':
         itemTitle = (item as FpsWeapon).GetTitle();
+        break;
+
+      case 'atts':
+        itemTitle = (item as FpsAttachment).GetTitle();
         break;
     
       default:
