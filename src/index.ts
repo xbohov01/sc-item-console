@@ -149,13 +149,17 @@ function SearchAndOutput(searchPhrase:string){
     Output(found, 'Attachments', 'atts');
   }
   //Search and output Ship purchases
-  found = shipPurchases.filter(s => s.Name+s.Manufacturer.toLowerCase().includes(searchPhrase.toLowerCase()));
+  found = shipPurchases.filter(s => 
+    s.Name.toLowerCase().includes(searchPhrase.toLowerCase()) 
+    || s.Manufacturer.toLowerCase().includes(searchPhrase.toLowerCase()));
   if (found.length > 0){
     Output(found, 'Ships', 'shp');
   }
 
   //Search and output Ship rentals
-  found = shipRentals.filter(s => s.Name+s.Manufacturer.toLowerCase().includes(searchPhrase.toLowerCase()));
+  found = shipRentals.filter(s => 
+    s.Name.toLowerCase().includes(searchPhrase.toLowerCase()) 
+    || s.Manufacturer.toLowerCase().includes(searchPhrase.toLowerCase()));
   if (found.length > 0){
     Output(found, 'Rentals', 'rnt');
   }
@@ -188,6 +192,8 @@ function Output(items:ItemBase[], title:string, type:string = ''){
 
   if (type == 'rnt'){
     OutputRentals(items as ShipRental[]);
+    console.log('-----------------------------------------');
+    return;
   }
 
   let itemTitle:string;

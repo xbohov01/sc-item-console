@@ -103,10 +103,8 @@ export function ParseShipRentals(data:DataItem[]):ShipRental[]{
           prices.push(new RentalPrice(price, parseInt(item[price])));
         }
 
-        console.log(prices);
         locations.push(new RentalLocation(key, prices));
       }
-      console.log(locations)
     }
     parsedItem.RentalLocations = locations.sort((a,b) => a.Prices[0].Price > b.Prices[0].Price ? 1 : -1);
     parsed.push(parsedItem);
