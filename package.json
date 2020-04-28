@@ -14,7 +14,7 @@
     "build": "tsc -p .",
     "test": "npm i -g && item-console",
     "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
-    "package": "pkg . --targets node10-win-x64 --out-path \\builds"
+    "package": "pkg . --targets node10-win-x64 --out-path .\\build"
   },
   "author": "TheSpaceCoder",
   "license": "ISC",

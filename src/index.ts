@@ -5,12 +5,16 @@ import fs from 'fs';
 import csv from 'csv-parse';
 import readline from 'readline';
 import FpsWeapon from './models/FpsWeapon';
-import { ParseFpsWeapons, ParseFpsAttachments } from './parsers';
+import { ParseFpsWeapons, ParseFpsAttachments, ParseShipPurchases, ParseShipRentals } from './parsers';
 import { ItemBase } from './models/ItemBase';
 import FpsAttachment from './models/FpsAttachment';
+import ShipPurchase from './models/ShipPurchase';
+import ShipRental from './models/ShipRental';
 
 const fpsPath = './sheets/fps-weapons.csv';
 const fpsAttachmentsPath = './sheets/fps-attachments.csv';
+const shipPurchasePath = './sheets/ship-purchase.csv';
+const shipRentalPath = './sheets/ship-rental.csv';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -20,6 +24,8 @@ const rl = readline.createInterface({
 
 let fpsWeapons:FpsWeapon[] = [];
 let fpsAttachments:FpsAttachment[] = [];
+let shipPurchases:ShipPurchase[] = [];
+let shipRentals:ShipRental[] = [];
 
 clear();
 console.log(
@@ -54,24 +60,62 @@ catch(err){
 try {
   let data:any[] = [];
   if (fs.existsSync(fpsAttachmentsPath)){
-    //console.log('FPS Weapons sheet loaded');
+    //console.log('FPS Attachments sheet loaded');
     fs.createReadStream(fpsAttachmentsPath)
     .pipe(csv({
       from_line: 3, columns: true
     }))
     .on('data', (row:any) => data.push(row))
     .on('end', () => {
-      //FPS Weapons parse
+      //FPS Attachments parse
       fpsAttachments = ParseFpsAttachments(data);
-      //console.log(chalk.greenBright('FPS Weapons sheet parsed'));
+      //console.log(chalk.greenBright('FPS Attachments sheet parsed'));
     });
   }
 } catch(err){
   console.error('FPS Attachments sheet missing in /sheets folder');
 }
 
+try {
+  let data:any[] = [];
+  if (fs.existsSync(shipPurchasePath)){
+    //console.log('Ship purchase sheet loaded');
+    fs.createReadStream(shipPurchasePath)
+    .pipe(csv({
+      from_line: 3, columns: true
+    }))
+    .on('data', (row:any) => data.push(row))
+    .on('end', () => {
+      //Ship purchase parse
+      shipPurchases = ParseShipPurchases(data);
+      //console.log(chalk.greenBright('Ship purchase sheet parsed'));
+    });
+  }
+} catch(err){
+  console.error('Ship purchases sheet missing in /sheets folder');
+}
+
+try {
+  let data:any[] = [];
+  if (fs.existsSync(shipRentalPath)){
+    //console.log('Ship renta; sheet loaded');
+    fs.createReadStream(shipRentalPath)
+    .pipe(csv({
+      from_line: 3, columns: true
+    }))
+    .on('data', (row:any) => data.push(row))
+    .on('end', () => {
+      //Ship purchase parse
+      shipRentals = ParseShipRentals(data);
+      //console.log(chalk.greenBright('Ship purchase sheet parsed'));
+    });
+  }
+} catch(err){
+  console.error('Ship rentals sheet missing in /sheets folder');
+}
+
 //User interface
-console.log('Enter your search phase bellow');
+console.log('Enter your search phase below');
 console.log('Supports partial or complete item names');
 console.log('Close the window or type "quit" to exit.');
 console.log(chalk.greenBright('----------------------------------------'));
@@ -104,18 +148,54 @@ function SearchAndOutput(searchPhrase:string){
   if (found.length > 0){
     Output(found, 'Attachments', 'atts');
   }
-  //Search and output Armors
+  //Search and output Ship purchases
+  found = shipPurchases.filter(s => 
+    s.Name.toLowerCase().includes(searchPhrase.toLowerCase()) 
+    || s.Manufacturer.toLowerCase().includes(searchPhrase.toLowerCase()));
+  if (found.length > 0){
+    Output(found, 'Ships', 'shp');
+  }
+
+  //Search and output Ship rentals
+  found = shipRentals.filter(s => 
+    s.Name.toLowerCase().includes(searchPhrase.toLowerCase()) 
+    || s.Manufacturer.toLowerCase().includes(searchPhrase.toLowerCase()));
+  if (found.length > 0){
+    Output(found, 'Rentals', 'rnt');
+  }
+
 
   console.log(chalk.greenBright('-----------------------------------------'))
   console.log(chalk.greenBright('End of found items'))
   console.log(chalk.greenBright('-----------------------------------------'))
 }
 
-///give the item classes a print method, retype based on argument and use the classes print to log title
+function OutputRentals(items:ShipRental[]){
+  for (let item of items){
+    console.log(chalk.yellowBright(item.GetTitle()));
+    for(let location of item.RentalLocations){
+      console.log(`   ${location.Name}`);
+      for (let price of location.Prices){
+        console.log(`     ${price.Type} - ${price.Price} aUEC`);
+      }
+    }
+    if (item.RentalLocations.length == 0){
+      console.log(chalk.red('   Rental not available at any location'));
+    }
+  }
+}
+
 function Output(items:ItemBase[], title:string, type:string = ''){
   console.log(chalk.greenBright('-----------------------------------------'))
   console.log(chalk.greenBright(`${title}`))
   console.log(chalk.greenBright('-----------------------------------------'))
+
+  if (type == 'rnt'){
+    OutputRentals(items as ShipRental[]);
+    console.log('-----------------------------------------');
+    return;
+  }
+
   let itemTitle:string;
   for (let item of items){
     switch (type) {
@@ -125,6 +205,10 @@ function Output(items:ItemBase[], title:string, type:string = ''){
 
       case 'atts':
         itemTitle = (item as FpsAttachment).GetTitle();
+        break;
+
+      case 'shp':
+        itemTitle = (item as ShipPurchase).GetTitle();
         break;
     
       default:
