@@ -19,4 +19,5 @@ This project's data is gathered by the community. If you would like to contribut
 1. TBD
 2. ...
 
-Direct download link: https://github.com/xbohov01/sc-item-console/blob/master/build/item-console-v0.zip
+# Download
+Direct download link: https://github.com/xbohov01/sc-item-console/raw/master/build/item-console.zip
